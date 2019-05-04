@@ -1,10 +1,6 @@
 <template>
   <section class="profile">
-    <header class="header">
-      <a class="header_title">
-        <span class="header_title_text">我的</span>
-      </a>
-    </header>
+    <Header :title="'个人中心'"></Header>
     <section class="profile-number">
       <a href="javascript:" class="profile-link">
         <div class="profile_image">
@@ -49,8 +45,8 @@
         <div class="my_order_div">
           <span>我的订单</span>
           <span class="my_order_icon">
-                <i class="iconfont icon-jiantou1"></i>
-              </span>
+            <i class="iconfont iconjiantouyou"></i>
+          </span>
         </div>
       </a>
       <!-- 积分商城 -->
@@ -61,8 +57,8 @@
         <div class="my_order_div">
           <span>积分商城</span>
           <span class="my_order_icon">
-                <i class="iconfont icon-jiantou1"></i>
-              </span>
+            <i class="iconfont iconjiantouyou"></i>
+          </span>
         </div>
       </a>
       <!-- 硅谷外卖会员卡 -->
@@ -73,7 +69,7 @@
         <div class="my_order_div">
           <span>硅谷外卖会员卡</span>
           <span class="my_order_icon">
-                <i class="iconfont icon-jiantou1"></i>
+                <i class="iconfont iconjiantouyou"></i>
               </span>
         </div>
       </a>
@@ -87,8 +83,8 @@
         <div class="my_order_div">
           <span>服务中心</span>
           <span class="my_order_icon">
-                <i class="iconfont icon-jiantou1"></i>
-              </span>
+            <i class="iconfont iconjiantouyou"></i>
+          </span>
         </div>
       </a>
     </section>
@@ -105,45 +101,7 @@
   @import "../../common/stylus/mixins.styl"
   .profile //我的
     width 100%
-    .header
-      background-color #02a774
-      position fixed
-      z-index 100
-      left 0
-      top 0
-      width 100%
-      height 45px
-      .header_search
-        position absolute
-        left 15px
-        top 50%
-        transform translateY(-50%)
-        width 10%
-        height 50%
-        .icon-sousuo
-          font-size 25px
-          color #fff
-      .header_title
-        position absolute
-        top 50%
-        left 50%
-        transform translate(-50%, -50%)
-        width 50%
-        color #fff
-        text-align center
-        .header_title_text
-          font-size 20px
-          color #fff
-          display block
-      .header_login
-        font-size 14px
-        color #fff
-        position absolute
-        right 15px
-        top 50%
-        transform translateY(-50%)
-        .header_login_text
-          color #fff
+
     .profile-number
       margin-top 45.5px
       .profile-link
@@ -248,13 +206,13 @@
           >.iconfont
             margin-left -10px
             font-size 20px
-          .icon-order-s
+          .iconicon-1
             color #02a774
-          .icon-jifen
+          .iconjifen
             color #ff5f3e
-          .icon-vip
+          .iconvip1
             color #f90
-          .icon-fuwu
+          .iconfuwuzhongxin1
             color #02a774
         .my_order_div
           width 100%
@@ -269,7 +227,7 @@
           .my_order_icon
             width 10px
             height 10px
-            .icon-jiantou1
+            .iconjiantouyou
               color #bbb
               font-size 10px
 </style>
