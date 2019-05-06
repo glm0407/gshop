@@ -1,7 +1,7 @@
 <template>
   <div>
     <router-view></router-view>
-    <FooterGuide></FooterGuide>
+    <FooterGuide v-show="$route.meta.isShowFoot"></FooterGuide>
   </div>
 </template>
 
@@ -9,6 +9,9 @@
   import FooterGuide from './components/FooterGuide/FooterGuide'
   export default {
     name: 'App',
+    async mounted(){
+      this.$store.dispatch('getAddress')
+    },
     components:{
       FooterGuide
     }
