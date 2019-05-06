@@ -19,16 +19,22 @@ export default {
       }
    },
 
-    async getCategorys({commit}) {
-    //发送ajax请求获取信息(异步获取信息)
+  // 获取食品分类列表的异步action
+  async getCategorys ({commit}, callback) {
+    // 1. 发送异步ajax请求
     const result = await reqCategorys()
-    if(result.code===0){
-      //通过执行: commit()来触发mutation的调用, 间接更新state
-      commit(RECEIVE_CATEGORYS,result.data)
+    // 2. 成功后, 提交mutation
+    if(result.code===0) {
+      const categorys = result.data
+      commit(RECEIVE_CATEGORYS, categorys)
+      // 更新完状态数据后调用
+      typeof callback ==='function' && callback()
     }
+
   },
 
-    async getShops ({commit,state}) {
+
+  async getShops ({commit,state}) {
     const {latitude, longitude} =state
     //发送ajax请求获取信息(异步获取信息)
     const result = await reqShops(latitude, longitude)
