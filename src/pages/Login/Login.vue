@@ -4,44 +4,66 @@
       <div class="login_header">
         <h2 class="login_logo">硅谷外卖</h2>
         <div class="login_header_title">
-          <a href="javascript:;" class="on">短信登录</a>
-          <a href="javascript:;">密码登录</a>
+          <a href="javascript:;" :class="{on:loginWay}" @click="loginWay=true">短信登录</a>
+          <a href="javascript:;" :class="{on:!loginWay}"  @click="loginWay=false">密码登录</a>
         </div>
       </div>
       <div class="login_content">
         <form>
-          <div class="on">
+          <div :class="{on:loginWay}">
             <section class="login_message">
-              <input type="tel" maxlength="11" placeholder="手机号">
-              <button disabled="disabled" class="get_verification">获取验证码</button>
+              <input type="tel" maxlength="11" placeholder="手机号" name="phone"
+                     v-model="iphone" v-validate="{required: true,regex: /^1\d{10}$/}">
+
+              <span style="color: red">{{ errors.first('phone') }}</span>
+              <button :disabled="!isRightP || sendTime>0"
+                      class="get_verification"
+                      :class="{right_iphone_number:isRightP}"
+                      @click.prevent="sendCode"
+              >{{sendTime>0 ? `已发送${sendTime}s` : '获取验证码'}}</button>
             </section>
             <section class="login_verification">
-              <input type="tel" maxlength="8" placeholder="验证码">
+              <input type="tel" maxlength="8" placeholder="验证码" name="code"
+                     v-model="code" v-validate="{required: true,regex: /\d{6}$/}"
+              >
+              <span style="color: red">{{ errors.first('code') }}</span>
+
             </section>
             <section class="login_hint">
               温馨提示：未注册硅谷外卖帐号的手机号，登录时将自动注册，且代表已同意
               <a href="javascript:;">《用户服务协议》</a>
             </section>
           </div>
-          <div>
+          <div :class="{on:!loginWay}">
             <section>
               <section class="login_message">
-                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名">
+                <input type="tel" maxlength="11" placeholder="手机/邮箱/用户名" name="用户名"
+                       v-model="name" v-validate="'required'">
+                <span style="color: red">{{ errors.first('用户名') }}</span>
+
               </section>
               <section class="login_verification">
-                <input type="tel" maxlength="8" placeholder="密码">
-                <div class="switch_button off">
-                  <div class="switch_circle"></div>
-                  <span class="switch_text">...</span>
+                <input :type="isShowPwd ? 'text':'password'" name="密码"
+                       maxlength="8" placeholder="密码" v-model="pwd"
+                       v-validate="'required'"
+                >
+                <div class="switch_button" :class="{on:isShowPwd}" @click="isShowPwd = !isShowPwd">
+                  <div class="switch_circle" :class="{right:isShowPwd}"></div>
+                  <span class="switch_text">{{isShowPwd?'he':''}}</span>
                 </div>
+                <span style="color: red">{{ errors.first('密码') }}</span>
+
               </section>
               <section class="login_message">
-                <input type="text" maxlength="11" placeholder="验证码">
-                <img class="get_verification" src="./images/captcha.svg" alt="captcha">
+                <input type="text" maxlength="11" placeholder="验证码" name="验证码"
+                       v-model="captcha" v-validate="{required: true,regex: /^.{4}$/}">
+                <span style="color: red">{{ errors.first('验证码') }}</span>
+                <img class="get_verification" src="http://localhost:5000/captcha"
+                     alt="captcha" @click="updateCaptcha" ref="captcha">
               </section>
             </section>
           </div>
-          <button class="login_submit">登录</button>
+          <button class="login_submit" @click.prevent="login">登录</button>
         </form>
         <a href="javascript:;" class="about_us">关于我们</a>
       </div>
@@ -53,8 +75,90 @@
 </template>
 
 <script>
+  import {reqSendCode,reqPwdLogin,reqSmsLogin} from '../../api'
+  import {RECEIVE_USER} from '../../store/mutation-types'
+  import { Toast ,MessageBox} from 'mint-ui';
   export default {
-    name: 'Login'
+    name: 'Login',
+    data(){
+      return{
+        loginWay:true, //登录方式切换 短信登录默认true，密码登录为false
+        iphone:'', //收集输入的手机号
+        sendTime:0, //倒计时效果
+        code: '', // 一次性短信验证码
+        name: '', // 用户名
+        pwd: '', // 密码
+        captcha: '', // 一次性图形验证码
+        isShowPwd:false,   //是否显示密码
+      }
+    },
+    computed:{
+      //判断是否是一个正确的手机号
+      isRightP(){
+        return /^1\d{10}$/.test(this.iphone)
+      }
+    },
+    methods:{
+      //发送获取验证码的信息时，计时
+      async sendCode(){
+        const {iphone} = this
+        //指定最大的时间
+        this.sendTime = 30
+        //开启定时器，每隔一秒变化一次
+        const intervalId = setInterval(() => {
+          this.sendTime--
+          if(this.sendTime<=0){
+            clearInterval(intervalId)
+          }
+        },1000)
+        //请求发送验证码短信
+        const result = await reqSendCode(iphone)
+        console.log(reqSendCode(iphone))
+        if(result.code===0){
+          Toast('发送成功')
+        }else{
+          //停止计时
+          this.sendTime=0
+          MessageBox.alert(result.msg)
+        }
+      },
+      async login(){
+        let names
+        let result
+        const {loginWay,phone, code, name, pwd, captcha} =this
+        if(loginWay){
+          names=['phone','code']
+        }else{
+          names=['用户名','密码','验证码']
+        }
+        const success = await this.$validator.validateAll(names)
+        if(success){
+          //如果验证通过发送登录请求
+          if(loginWay){
+            result = await reqSmsLogin(phone, code)
+          }else{
+            result = await reqPwdLogin({name, pwd, captcha})
+          }
+          //请求成功后，
+          if(result.code===0){
+            const user = result.data
+            //保存user到state中去
+            this.$store.commit(RECEIVE_USER,user)
+            //跳转到个人中心
+            this.$router.replace('/profile')
+          }else{
+            MessageBox.alert(result.msg)
+          }
+
+        }else{
+          alert('验证失败')
+        }
+      },
+      updateCaptcha(){
+        // 只要给img指定一个新的src值, 浏览器自动发请求显示新的图片(携带一个时间戳的参数)
+        this.$refs.captcha.src = 'http://localhost:5000/captcha?time='+Date.now()
+      }
+    }
   }
 </script>
 
@@ -119,6 +223,8 @@
                 color #ccc
                 font-size 14px
                 background transparent
+                &.right_iphone_number
+                  color black
             .login_verification
               position relative
               margin-top 16px
@@ -158,6 +264,8 @@
                   background #fff
                   box-shadow 0 2px 4px 0 rgba(0,0,0,.1)
                   transition transform .3s
+                  &.right
+                    transform translateX(27px)
             .login_hint
               margin-top 12px
               color #999

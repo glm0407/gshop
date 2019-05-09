@@ -11,6 +11,7 @@
     name: 'App',
     async mounted(){
       this.$store.dispatch('getAddress')
+      this.$store.dispatch('getUser')
     },
     components:{
       FooterGuide

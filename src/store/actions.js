@@ -1,11 +1,13 @@
 /*
 包含n个用于间接更新状态数据的方法的对象
  */
-import {reqAdress,reqCategorys,reqShops} from '../api'
+import {reqAdress,reqCategorys,reqShops,reqUser,reqLogout} from '../api'
 import {
   RECEIVE_ADDRESS,
   RECEIVE_CATEGORYS,
-  RECEIVE_SHOPS
+  RECEIVE_SHOPS,
+  RECEIVE_USER,
+  RESET_USER
 }
   from './mutation-types'
 export default {
@@ -42,5 +44,19 @@ export default {
       //通过执行: commit()来触发mutation的调用, 间接更新state
       commit(RECEIVE_SHOPS,result.data)
     }
-  }
+  },
+  async getUser ({commit}){
+    const result = await reqUser()
+    if(result.code===0) {
+      const user= result.data
+      commit(RECEIVE_USER, user)
+    }
+  },
+  async logout ({commit}){
+    const result = await reqLogout()
+    if(result.code===0) {
+      commit(RESET_USER)
+    }
+  },
+
 }
