@@ -63,7 +63,10 @@
 
     },
     computed:{
-      ...mapState(["address","categorys"]),
+      ...mapState({
+        address:state => state.msite.address,
+        categorys:state => state.msite.categorys
+      }),
       categorysArr (){
         const {categorys} = this
         const bigArr = []

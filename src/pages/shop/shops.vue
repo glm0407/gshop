@@ -11,18 +11,26 @@
       <div class="tab-item">
         <router-link to="/shop/Info" replace>商品</router-link>
       </div>
-      <router-view></router-view>
     </div>
+    <router-view></router-view>
   </div>
 
 </template>
 
 <script>
   import ShopHeader  from '../../components/ShopHeader/ShopHeader'
+  import {reqGoods} from '../../api'
   export default {
     name: 'shops',
     components:{
       ShopHeader
+    },
+    async mounted(){
+      const result = await reqGoods()
+      console.log(result)
+      this.$store.dispatch('getGoods')
+      this.$store.dispatch('getInfo')
+      this.$store.dispatch('getRatings')
     }
   }
 </script>
